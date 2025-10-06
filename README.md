@@ -29,4 +29,10 @@ The repository includes a GitHub Actions workflow that publishes the Vite build 
 3. On every push to `main`, the `Deploy to GitHub Pages` workflow installs dependencies, builds the project and deploys the `dist/` output to GitHub Pages.
 4. Your site will be available at `https://<username>.github.io/<repository-name>/` once the workflow completes.
 
+### Handling single-page routing on GitHub Pages
+
+GitHub Pages serves the deployed bundle from a static file host and does not automatically route deep links (for example `/boss/arch-glacor`) back to the SPA entry point. The project ships with a specialised `404.html` that lives alongside the build output and captures unknown URLs. It performs a lightweight redirect that preserves the requested path and hands it back to the Vite application shell on load.
+
+No extra configuration is required—when a visitor refreshes a deep link, the redirect shim rewrites the URL and `src/utils/githubPagesRedirect.ts` restores the correct in-app route before React mounts. This keeps bookmarking and sharing of planner configurations working reliably across both local development and the GitHub Pages deployment.
+
 The Vite configuration automatically sets the correct base path during production builds when it detects the GitHub repository name, ensuring that asset URLs resolve correctly on GitHub Pages.
