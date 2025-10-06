@@ -12,7 +12,10 @@ export function ApiProvider({ children }: PropsWithChildren): JSX.Element {
     await Promise.all(
       apiRegistry.map(async (entry) => {
         try {
-          const data = await queryClient.fetchQuery(entry.queryKey, entry.fetcher);
+          const data = await queryClient.fetchQuery({
+            queryKey: entry.queryKey,
+            queryFn: entry.fetcher
+          });
           setFreshness(entry.key, { updatedAt: Date.now(), ttl: entry.ttlMs });
           return data;
         } catch (error) {

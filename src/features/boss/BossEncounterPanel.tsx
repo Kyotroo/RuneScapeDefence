@@ -50,7 +50,7 @@ export function BossEncounterPanel(): JSX.Element {
                       type="button"
                       onClick={() => {
                         updateConfig('boss', entry);
-                        updateConfig('bossModeId', entry.modes.at(0)?.id ?? null);
+                        updateConfig('bossModeId', entry.modes[0]?.id ?? null);
                       }}
                       className={clsx(
                         'flex w-full flex-col gap-1 px-4 py-3 text-left hover:bg-slate-900/60',
@@ -74,7 +74,7 @@ export function BossEncounterPanel(): JSX.Element {
             {boss ? (
               <div className="mt-3 space-y-3">
                 <select
-                  value={bossModeId ?? boss.modes.at(0)?.id ?? ''}
+                  value={bossModeId ?? boss.modes[0]?.id ?? ''}
                   onChange={(event) => updateConfig('bossModeId', event.target.value)}
                   className="w-full rounded border border-slate-800 bg-slate-900/80 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
                 >

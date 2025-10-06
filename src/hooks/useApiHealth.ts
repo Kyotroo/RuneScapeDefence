@@ -12,7 +12,7 @@ export function useApiHealth() {
     await Promise.all(
       apiRegistry.map(async (entry) => {
         try {
-          await queryClient.fetchQuery(entry.queryKey, entry.fetcher);
+          await queryClient.fetchQuery({ queryKey: entry.queryKey, queryFn: entry.fetcher });
           setFreshness(entry.key, { updatedAt: Date.now(), ttl: entry.ttlMs });
         } catch (error) {
           registerError(entry.key, error instanceof Error ? error.message : 'Unknown error');

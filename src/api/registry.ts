@@ -1,3 +1,4 @@
+import type { QueryKey } from '@tanstack/react-query';
 import { fetchArmor } from './armor';
 import { fetchPrayers } from './supportingData';
 import { fetchAuras } from './supportingData';
@@ -7,7 +8,7 @@ import { CombatStyle } from '../types/config';
 
 export const apiRegistry: Array<{
   key: string;
-  queryKey: unknown[];
+  queryKey: QueryKey;
   fetcher: () => Promise<unknown>;
   ttlMs: number;
 }> = [

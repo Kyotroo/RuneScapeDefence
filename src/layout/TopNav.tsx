@@ -10,7 +10,8 @@ export function TopNav(): JSX.Element {
     const sorted = Object.entries(freshness)
       .filter(([, meta]) => meta)
       .sort(([, a], [, b]) => (b?.updatedAt ?? 0) - (a?.updatedAt ?? 0));
-    return sorted.at(0)?.[1] ?? null;
+    const newestEntry = sorted[0];
+    return newestEntry ? newestEntry[1] ?? null : null;
   }, [freshness]);
 
   return (
