@@ -9,6 +9,7 @@ export type UserConfiguration = {
   activePrayer: Prayer | null;
   activeAura: Aura | null;
   familiar: Familiar | null;
+  prayerBook: 'standard' | 'ancient';
   boss: BossEncounter | null;
   bossModeId: string | null;
   enrage: number;
@@ -43,6 +44,7 @@ export const defaultConfiguration: UserConfiguration = {
   activePrayer: null,
   activeAura: null,
   familiar: null,
+  prayerBook: 'standard',
   boss: null,
   bossModeId: null,
   enrage: 0,

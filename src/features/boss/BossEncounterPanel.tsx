@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { BossEncounter } from '../../types/api';
@@ -83,7 +84,7 @@ export function BossEncounterPanel(): JSX.Element {
                     </option>
                   ))}
                 </select>
-                <div>
+                <div className="space-y-3">
                   <label className="text-xs uppercase tracking-wide text-slate-400">Enrage</label>
                   <input
                     type="range"
@@ -93,17 +94,24 @@ export function BossEncounterPanel(): JSX.Element {
                     onChange={(event) => updateConfig('enrage', Number(event.target.value))}
                     className="mt-2 w-full"
                   />
-                  <input
-                    type="number"
-                    min={0}
-                    max={boss.enrageCap ?? 4000}
-                    value={enrage}
-                    onChange={(event) => updateConfig('enrage', Number(event.target.value))}
-                    className="mt-2 w-full rounded border border-slate-800 bg-slate-900/80 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-                  />
+                  <div className="grid gap-2 sm:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] sm:items-center">
+                    <input
+                      type="number"
+                      min={0}
+                      max={boss.enrageCap ?? 4000}
+                      value={enrage}
+                      onChange={(event) => updateConfig('enrage', Number(event.target.value))}
+                      className="w-full rounded border border-slate-800 bg-slate-900/80 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+                    />
+                    <EnragePresets
+                      max={boss.enrageCap ?? 4000}
+                      onSelect={(value) => updateConfig('enrage', value)}
+                    />
+                  </div>
                   <EnrageMilestones value={enrage} />
+                  <EnrageInsights boss={boss} value={enrage} />
                 </div>
-                <MechanicSummary boss={boss} />
+                <MechanicSummary boss={boss} enrage={enrage} />
               </div>
             ) : (
               <p className="mt-3 text-sm text-slate-400">Select a boss to configure encounter details.</p>
@@ -117,9 +125,10 @@ export function BossEncounterPanel(): JSX.Element {
 
 type MechanicSummaryProps = {
   boss: BossEncounter;
+  enrage: number;
 };
 
-function MechanicSummary({ boss }: MechanicSummaryProps): JSX.Element {
+function MechanicSummary({ boss, enrage }: MechanicSummaryProps): JSX.Element {
   const featured = boss.mechanics.slice(0, 3);
   return (
     <div className="rounded border border-slate-900/60 bg-slate-950/40 p-3">
@@ -129,6 +138,7 @@ function MechanicSummary({ boss }: MechanicSummaryProps): JSX.Element {
           <li key={mechanic.id} className="text-slate-300">
             <span className="font-semibold text-emerald-300">{mechanic.name}</span>
             <span className="ml-2 text-xs text-slate-400">{mechanic.description}</span>
+            <EnrageCallout mechanic={mechanic} enrage={enrage} />
           </li>
         ))}
       </ul>
@@ -156,4 +166,96 @@ function EnrageMilestones({ value }: EnrageMilestonesProps): JSX.Element {
       ))}
     </div>
   );
+}
+
+type EnragePresetsProps = {
+  max: number;
+  onSelect: (value: number) => void;
+};
+
+const presets = [0, 100, 500, 1000, 1500, 2000, 3000];
+
+function EnragePresets({ max, onSelect }: EnragePresetsProps): JSX.Element {
+  return (
+    <div className="flex flex-wrap gap-2 text-xs text-slate-400">
+      {presets
+        .filter((value) => value <= max)
+        .map((value) => (
+          <button
+            type="button"
+            key={value}
+            onClick={() => onSelect(value)}
+            className="rounded border border-slate-800 px-2 py-1 transition hover:border-emerald-400/60 hover:text-emerald-200"
+          >
+            {value}%
+          </button>
+        ))}
+    </div>
+  );
+}
+
+type EnrageInsightsProps = {
+  boss: BossEncounter;
+  value: number;
+};
+
+function EnrageInsights({ boss, value }: EnrageInsightsProps): JSX.Element {
+  const multiplier = 1 + value / 1000;
+  const color = getEnrageIntensityColor(value);
+  const upcoming = useMemo(() => {
+    return boss.mechanics
+      .flatMap((mechanic) =>
+        (mechanic.enrageChanges ?? [])
+          .filter((change) => change.threshold >= value)
+          .map((change) => ({
+            mechanic: mechanic.name,
+            threshold: change.threshold,
+            description: change.description
+          }))
+      )
+      .sort((a, b) => a.threshold - b.threshold)
+      .slice(0, 2);
+  }, [boss.mechanics, value]);
+
+  return (
+    <div className="space-y-2 text-xs text-slate-300">
+      <p>
+        <span className="font-semibold text-slate-200">Damage multiplier:</span>{' '}
+        <span className={color}>{multiplier.toFixed(2)}×</span>
+      </p>
+      {upcoming.length ? (
+        <ul className="space-y-1 text-slate-400">
+          {upcoming.map((item) => (
+            <li key={`${item.mechanic}-${item.threshold}`}>
+              <span className="text-emerald-200">{item.threshold}%</span> · {item.mechanic} — {item.description}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-slate-500">No additional mechanic escalations from current enrage.</p>
+      )}
+    </div>
+  );
+}
+
+type EnrageCalloutProps = {
+  mechanic: BossEncounter['mechanics'][number];
+  enrage: number;
+};
+
+function EnrageCallout({ mechanic, enrage }: EnrageCalloutProps): JSX.Element | null {
+  const trigger = mechanic.enrageChanges?.find((change) => change.threshold <= enrage);
+  if (!trigger) return null;
+  return (
+    <span className="mt-1 block text-[11px] text-amber-300">
+      ⚠️ {trigger.description}
+    </span>
+  );
+}
+
+function getEnrageIntensityColor(value: number): string {
+  if (value < 500) return 'text-emerald-300';
+  if (value < 1500) return 'text-amber-300';
+  if (value < 3000) return 'text-orange-400';
+  return 'text-rose-400';
 }
