@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>RuneScape Defensive Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: radial-gradient(circle at 20% 20%, rgba(94, 234, 212, 0.12), transparent 45%),
+          radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.14), transparent 50%),
+          #0f172a;
+        color: #e2e8f0;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      h1 {
+        font-size: clamp(1.5rem, 3vw, 2.25rem);
+        margin-bottom: 0.75rem;
+      }
+
+      p {
+        max-width: 32rem;
+        margin: 0 auto 2rem;
+        line-height: 1.6;
+      }
+
+      .spinner {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 999px;
+        border: 0.35rem solid rgba(226, 232, 240, 0.24);
+        border-top-color: rgba(45, 212, 191, 0.9);
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Redirecting you back to the defensive lab…</h1>
+      <p>
+        We could not find the requested page directly, so we are safely routing you back to the
+        application shell.
+      </p>
+      <div class="spinner" aria-hidden="true"></div>
+    </main>
+    <script>
+      (function () {
+        var l = window.location;
+        var segments = l.pathname.split('/').filter(Boolean);
+        var isGitHubHost = /\.github\.io$/i.test(l.hostname);
+        var segmentCount = isGitHubHost && segments.length > 0 ? 1 : 0;
+
+        var baseSegments = l.pathname.split('/').slice(0, segmentCount + 1).join('/');
+        if (!baseSegments || baseSegments === '/') {
+          baseSegments = '/';
+        } else if (!baseSegments.endsWith('/')) {
+          baseSegments += '/';
+        }
+
+        var targetPath = l.pathname
+          .slice(1)
+          .split('/')
+          .slice(segmentCount)
+          .join('/')
+          .replace(/&/g, '~and~');
+
+        var search = l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '';
+        var redirectUrl =
+          l.protocol +
+          '//' +
+          l.host +
+          baseSegments +
+          '?p=/' +
+          targetPath +
+          search +
+          l.hash;
+
+        l.replace(redirectUrl);
+      })();
+    </script>
+  </body>
+</html>

@@ -5,6 +5,7 @@ import App from './App';
 import './styles/tailwind.css';
 import { ApiProvider } from './state/ApiProvider';
 import { UserConfigProvider } from './state/UserConfigContext';
+import { restoreSpaRouteFromGithubPages } from './utils/githubPagesRedirect';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,6 +16,8 @@ const queryClient = new QueryClient({
     }
   }
 });
+
+restoreSpaRouteFromGithubPages();
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 
