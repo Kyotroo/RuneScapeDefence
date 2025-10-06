@@ -7,6 +7,9 @@ import { ArmorLoadoutPanel } from './features/armor/ArmorLoadoutPanel';
 import { BossEncounterPanel } from './features/boss/BossEncounterPanel';
 import { HitpointOverview } from './features/hitpoints/HitpointOverview';
 import { SimulationPanel } from './features/simulation/SimulationPanel';
+import { PrayerSelectionPanel } from './features/prayer/PrayerSelectionPanel';
+import { AuraSelectionPanel } from './features/aura/AuraSelectionPanel';
+import { FamiliarSelectionPanel } from './features/familiar/FamiliarSelectionPanel';
 import { useUserConfig } from './state/UserConfigContext';
 import { DataFreshnessToasts } from './components/DataFreshnessToasts';
 
@@ -27,6 +30,9 @@ function App(): JSX.Element {
             Combat Configuration
           </h2>
           <CombatStylePanel />
+          <PrayerSelectionPanel />
+          <AuraSelectionPanel />
+          <FamiliarSelectionPanel />
           <ArmorLoadoutPanel />
           <HitpointOverview />
         </section>

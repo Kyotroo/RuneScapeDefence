@@ -45,7 +45,11 @@ export function UserConfigProvider({ children }: PropsWithChildren): JSX.Element
   const initialiseFromStorage = useCallback(() => {
     const stored = loadFromStorage<UserConfiguration>(STORAGE_KEY);
     if (stored) {
-      setConfiguration(stored);
+      setConfiguration((current) => ({
+        ...current,
+        ...stored,
+        armor: { ...current.armor, ...(stored.armor ?? {}) }
+      }));
     }
   }, []);
 
